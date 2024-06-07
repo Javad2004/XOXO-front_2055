@@ -16,7 +16,7 @@ const LoginPage = () => {
                 navigate('/game', {state: {player1: names[0], player2: names[1]}});
             })
             .catch(() => {
-                alert("Register Failed!");
+                alert("Registeration Failed!");
             });
     };
 

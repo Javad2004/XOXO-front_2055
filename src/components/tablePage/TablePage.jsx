@@ -7,8 +7,15 @@ const TablePage = () => {
     const [playerData , setPlayerData] = useState([])
 
     const getData = async() => {
-        const res = await axios.get("http://127.0.0.1:8000/users/top10");
-        setPlayerData(res.data);
+        const res = await axios
+        .get("http://127.0.0.1:8000/users/top10")
+        .then(() => {
+            setPlayerData(res.data);
+        })
+        .catch(() => {
+            alert("Failed Loading Data!")
+            window.location.href = '/';
+        });
     }
 
     useEffect(() => {

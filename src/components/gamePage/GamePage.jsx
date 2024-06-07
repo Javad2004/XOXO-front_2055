@@ -21,7 +21,7 @@ const GamePage = () => {
                 setResultPage('flex');
             })
             .catch(() => {
-                alert("Failed To Update Scores!");
+                alert("Failed Updating Scores!");
             });
     };
 
