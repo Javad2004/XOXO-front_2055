@@ -116,8 +116,8 @@ const GamePage = () => {
             <div className="my-5 d-flex position-relative justify-content-end">
                 <div className="col-12 d-flex flex-column align-items-center">
                     <div className="col-4 fixed_size1 d-flex text-white justify-content-between">
-                        <h3 className="text-start">Blue is: O</h3>
-                        <h3 className="text-end">Red is: X</h3>
+                        <h3 className="text-start">“{player1}” is: O</h3>
+                        <h3 className="text-end">“{player2}” is: X</h3>
                     </div>
                     <div className="col-4 d-flex flex-column gap-2">
                         <div className="d-flex gap-2">

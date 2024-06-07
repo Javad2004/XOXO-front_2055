@@ -9,13 +9,11 @@ const TablePage = () => {
     const getData = async() => {
         const res = await axios
         .get("http://127.0.0.1:8000/users/top10")
-        .then(() => {
-            setPlayerData(res.data);
-        })
         .catch(() => {
-            alert("Failed Loading Data!")
+            alert("Failed Fetching Data!")
             window.location.href = '/';
         });
+        setPlayerData(res.data);
     }
 
     useEffect(() => {
@@ -41,10 +39,10 @@ const TablePage = () => {
                     <tbody className="fixed_size4">
                         {playerData?.map((value, index) => {
                             return (
-                                <tr>
-                                <td>{index+1}</td>
-                                <td>{value.name}</td>
-                                <td>{value.score}</td>
+                                <tr key={value.id}>
+                                    <td>{index+1}</td>
+                                    <td>{value.name}</td>
+                                    <td>{value.score}</td>
                                 </tr>
                             );
                         })}
