@@ -18,7 +18,7 @@ const TablePage = () => {
 
     useEffect(() => {
         getData();
-    },[])
+    },[]);
 
     return (
         <div className="h-100 d-flex flex-column">

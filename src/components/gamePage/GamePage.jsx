@@ -1,18 +1,27 @@
 import Title from '../Title'
 import ResultPage from './ResultPage';
+import Cell from './Cell';
 import { useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import axios from 'axios';
 
 const GamePage = () => {
 
+    const [board, setBoard] = useState(Array(9).fill(""));
+
+    const [key, setKey] = useState(0); //This state manages the keys of cells
+
     const location = useLocation();
     const {player1, player2} = location.state;
 
     const [gameMode, setGameMode] = useState(true);
-    const [player1turn, setPlayer1Turn] = useState(true);
+
+    const [playerTurn, setPlayerTurn] = useState(player2);
+    const [startingPlayer, setStartingPlayer] = useState(player2);
+
     const [winner , setWinner] = useState(null);
     const [resultPage , setResultPage] = useState('none');
+    const [turnDiv , setTurnDiv] = useState('flex');
 
     const update_users_scores = async (values) => {
         await axios
@@ -22,88 +31,111 @@ const GamePage = () => {
             })
             .catch(() => {
                 alert("Failed Updating Scores!");
+                window.location.href = '/login';
             });
     };
 
-    const checkTicTacToe = () => {
-        // Retrieve the values from the divs
-        const board = [];
-        for (let i = 1; i <= 9; i++) {
-            board.push(document.getElementById(i.toString()).textContent.trim());
-        }
+    const changeBoard = (index, content) => {
+        const newBoard = [...board];
+        newBoard[index] = content;
+        setBoard(newBoard);
+        reslut_checker(newBoard);
+    }
 
+    const checkTicTacToe = (currentBoard) => {
         // Function to check lines (rows, columns, diagonals)
         const checkLine = (a, b, c) => {
-            return board[a] && board[b] && board[c] && board[a] === board[b] && board[b] === board[c];
+            return currentBoard[a] && currentBoard[b] && currentBoard[c] && currentBoard[a] === currentBoard[b] && currentBoard[b] === currentBoard[c];
         };
 
         // Check rows
         for (let i = 0; i < 3; i++) {
             if (checkLine(i * 3, i * 3 + 1, i * 3 + 2)) {
-                return board[i * 3];
+                return currentBoard[i * 3];
             }
         }
 
         // Check columns
         for (let i = 0; i < 3; i++) {
             if (checkLine(i, i + 3, i + 6)) {
-                return board[i];
+                return currentBoard[i];
             }
         }
 
         // Check diagonals
         if (checkLine(0, 4, 8)) {
-                return board[0];
+                return currentBoard[0];
         }
         if (checkLine(2, 4, 6)) {
-            return board[2];
+            return currentBoard[2];
         }
 
         // Check for a draw
-        if (!board.includes("")) {
+        if (!currentBoard.includes("")) {
             return "It's a draw";
         }
     }
 
-    const reslut_checker = () => {
-        let result = checkTicTacToe();
+    const reslut_checker = (currentBoard) => {
+        let result = checkTicTacToe(currentBoard);
 
         if (result === 'O') {
             setGameMode(false);
+            setTurnDiv('none');
             setWinner(`“${player1}” Wins :)`);
             update_users_scores([{name: player1, status: 'Win'}, {name: player2, status: 'Lose'}]);
-            console.log(gameMode)
         }
         else if (result === 'X') {
             setGameMode(false);
+            setTurnDiv('none');
             setWinner(`“${player2}” Wins :)`);
             update_users_scores([{name: player1, status: 'Lose'}, {name: player2, status: 'Win'}]);
         }
         else if (result === "It's a draw") {
             setGameMode(false);
+            setTurnDiv('none');
+            setResultPage('flex');
             setWinner('Draw!');
         }
     }
 
-    const click_cheker = (index) => {
+    const click_cheker = (style) => {
         if (gameMode === true) {
-            if (player1turn) {
-                if (document.getElementById(index).innerHTML === "") {
-                    document.getElementById(index).innerHTML = 'O';
-                    document.getElementById(index).style.color = 'red';
-                    setPlayer1Turn(false);
-                    reslut_checker();
+            if (style.content === '') {
+                if (playerTurn === player1) {
+                    setPlayerTurn(player2);
+                    return {content: 'O', color: 'red'};
+                }
+                else {
+                    setPlayerTurn(player1);
+                    return {content: 'X', color: '#3B2A9F'};
                 }
             }
             else {
-                if (document.getElementById(index).innerHTML === "") {
-                    document.getElementById(index).innerHTML = 'X';
-                    document.getElementById(index).style.color = '#3B2A9F';
-                    setPlayer1Turn(true);
-                    reslut_checker();
-                }
+                return style;   
             }
         }
+        else {
+            return style;
+        }
+
+    }
+
+    const replay = () => {
+        if (startingPlayer === player1) {
+            setStartingPlayer(player2);
+            setPlayerTurn(player2);
+        }
+        else {
+            setStartingPlayer(player1);
+            setPlayerTurn(player1);
+        }
+        setWinner(null);
+        setTurnDiv('flex');
+        setResultPage('none');
+        setGameMode(true);
+        setBoard(Array(9).fill(""));
+        setKey(key + 1); // Updates the key to force re-render of cells
     }
 
 
@@ -121,31 +153,32 @@ const GamePage = () => {
                     </div>
                     <div className="col-4 d-flex flex-column gap-2">
                         <div className="d-flex gap-2">
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('1')}}><span id='1'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('2')}}><span id='2'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('3')}}><span id='3'></span></div>
+                            <Cell key={`cell-${key}-0`} click_checker={click_cheker} changeBoard={changeBoard} index={0}/>
+                            <Cell key={`cell-${key}-1`} click_checker={click_cheker} changeBoard={changeBoard} index={1}/>
+                            <Cell key={`cell-${key}-2`} click_checker={click_cheker} changeBoard={changeBoard} index={2}/>
                         </div>
                         <div className="d-flex gap-2">
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('4')}}><span id='4'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('5')}}><span id='5'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('6')}}><span id='6'></span></div>
+                            <Cell key={`cell-${key}-3`} click_checker={click_cheker} changeBoard={changeBoard} index={3}/>
+                            <Cell key={`cell-${key}-4`} click_checker={click_cheker} changeBoard={changeBoard} index={4}/>
+                            <Cell key={`cell-${key}-5`} click_checker={click_cheker} changeBoard={changeBoard} index={5}/>
                         </div>
                         <div className="d-flex gap-2">
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('7')}}><span id='7'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('8')}}><span id='8'></span></div>
-                            <div className="cell bg-black rounded-3 d-flex justify-content-center align-items-center" onClick={() => {click_cheker('9')}}><span id='9'></span></div>
+                            <Cell key={`cell-${key}-6`} click_checker={click_cheker} changeBoard={changeBoard} index={6}/>
+                            <Cell key={`cell-${key}-7`} click_checker={click_cheker} changeBoard={changeBoard} index={7}/>
+                            <Cell key={`cell-${key}-8`} click_checker={click_cheker} changeBoard={changeBoard} index={8}/>
                         </div>
                     </div>
-                    
                 </div>
                 <div className="h-100 col-4 position-absolute px-5 justify-content-center d-flex flex-column">
-                    <ResultPage winner={winner} resultPage={resultPage}/>
+                    <div className="fixed_size2 justify-content-center text-white" style={{display: turnDiv}}>
+                        <h1>“{playerTurn}” Turn</h1>    
+                    </div>
+                    <ResultPage winner={winner} resultPage={resultPage} replay={() => replay()}/>
                 </div>
             </div>      
         </div>
     )
 }
-
 
 
 export default GamePage
