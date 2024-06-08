@@ -17,9 +17,8 @@ const GamePage = () => {
     const [gameMode, setGameMode] = useState(true);
 
     const [playerTurn, setPlayerTurn] = useState(player2);
-    const [startingPlayer, setStartingPlayer] = useState(player2);
 
-    const [winner , setWinner] = useState(null);
+    const [winner , setWinner] = useState('');
     const [resultPage , setResultPage] = useState('none');
     const [turnDiv , setTurnDiv] = useState('flex');
 
@@ -77,7 +76,7 @@ const GamePage = () => {
     }
 
     const reslut_checker = (currentBoard) => {
-        let result = checkTicTacToe(currentBoard);
+        const result = checkTicTacToe(currentBoard);
 
         if (result === 'O') {
             setGameMode(false);
@@ -122,15 +121,7 @@ const GamePage = () => {
     }
 
     const replay = () => {
-        if (startingPlayer === player1) {
-            setStartingPlayer(player2);
-            setPlayerTurn(player2);
-        }
-        else {
-            setStartingPlayer(player1);
-            setPlayerTurn(player1);
-        }
-        setWinner(null);
+        setWinner('');
         setTurnDiv('flex');
         setResultPage('none');
         setGameMode(true);
